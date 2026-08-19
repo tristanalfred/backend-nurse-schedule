@@ -2,3 +2,4 @@
 /.vscode
 /.vsode
 /db.sqlite3
+*.pyc
