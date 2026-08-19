@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'schedule.apps.ScheduleConfig',
     "corsheaders",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [

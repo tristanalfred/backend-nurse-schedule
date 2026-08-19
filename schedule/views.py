@@ -1,49 +1,32 @@
-from django.db.models import F
-from django.http import HttpResponse
-from django.http import JsonResponse
+from rest_framework import viewsets
+from rest_framework.decorators import action
 
 from schedule.models import Member, Shift, ShiftPreference, Team
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+from schedule.serializers import TeamSerializer, MemberSerializer, ShiftSerializer, ShiftPreferenceSerializer
 
 
-def team_list(request):
-    data = list(Team.objects.values())
-    return JsonResponse({'data': data})
+class TeamViewSet(viewsets.ModelViewSet):
+    queryset = Team.objects.all()
+    serializer_class = TeamSerializer
 
 
-def team_detail(request, id):
-    data_team = Team.objects.values().get(id=id)
-    data_members = list(Member.objects.filter(team__id=id).values('id', 'first_name', 'last_name'))
+class MemberViewSet(viewsets.ModelViewSet):
+    queryset = Member.objects.all()
+    serializer_class = MemberSerializer
     
-    data_team['members'] = data_members
-    
-    return JsonResponse({'data': data_team})
+    @action(detail=True, methods=["get"])
+    def shifts(self, request, pk=None):
+        member = self.get_object()
+        shifts = Shift.objects.filter(member=member)
+        serializer = ShiftSerializer(shifts, many=True)
+        return Response(serializer.data)
 
 
-def member_list(request):
-    
-    team = request.GET.get('team')
-    if team:
-        data = list(Member.objects.filter(team=team).values())
-    else:
-        data = list(Member.objects.values())        
-    return JsonResponse({'data': data})
+class ShiftViewSet(viewsets.ModelViewSet):
+    queryset = Shift.objects.all()
+    serializer_class = ShiftSerializer
 
 
-def member_shift_list(request, id):
-    shift_type = request.GET.get('type', None)
-    # prefered_shifts = list(Member.objects.filter(id=id).values_list('shift_preferences'))
-    prefered_shifts = list(
-        ShiftPreference.objects
-        .annotate(name=F('shift__name'))
-        .annotate(long_name=F('shift__long_name'))
-        .filter(member__id=id).values('name', 'long_name', 'note', 'weekday')
-    )
-    return JsonResponse({'data': prefered_shifts})
-
-
-def shift_list(request):
-    data = list(Shift.objects.values())
-    return JsonResponse({'data': data})
+class ShiftPreferenceViewSet(viewsets.ModelViewSet):
+    queryset = ShiftPreference.objects.all()
+    serializer_class = ShiftPreferenceSerializer

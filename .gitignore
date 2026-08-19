@@ -2,4 +2,5 @@
 /.vscode
 /.vsode
 /db.sqlite3
+__pycache__/
 *.pyc

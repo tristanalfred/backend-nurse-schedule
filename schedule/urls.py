@@ -1,12 +1,13 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework import routers
 
 from . import views
 
+router = routers.DefaultRouter()
+router.register(r"teams", views.TeamViewSet)
+router.register(r"members", views.MemberViewSet)
+router.register(r"shifts", views.ShiftViewSet)
+
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("teams", views.team_list, name="team_list"),
-    path("teams/<int:id>", views.team_detail, name="team_detail"),
-    path("members", views.member_list, name="member_list"),
-    path("members/<int:id>/shifts", views.member_shift_list, name="member_shift_list"),
-    path("shifts", views.shift_list, name="shift_list"),
+    path("", include(router.urls)),
 ]
